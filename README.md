@@ -2,7 +2,7 @@
 
 Here I want to explain what we have done. First of all, the main goal of this project is to find the linkage between three data sets using full pipeline of data science. Let me first give the links where one can obtain the data sets.
 
-*Data Set A:* https://catalog.data.gov/dataset/medicare-physician-other-practitioners-by-provider-and-service-b156e
+_Data Set A:_ https://catalog.data.gov/dataset/medicare-physician-other-practitioners-by-provider-and-service-b156e
 
 *Data Set B:* https://openpaymentsdata.cms.gov/datasets/download
 
