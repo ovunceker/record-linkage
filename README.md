@@ -3,8 +3,11 @@
 Here I want to explain what we have done. First of all, the main goal of this project is to find the linkage between three data sets using full pipeline of data science. Let me first give the links where one can obtain the data sets.
 
 Data Set A: https://catalog.data.gov/dataset/medicare-physician-other-practitioners-by-provider-and-service-b156e
+
 Data Set B: https://openpaymentsdata.cms.gov/datasets/download
+
 Data Set C: https://data.cms.gov/provider-characteristics/medicare-provider-supplier-enrollment/medicare-fee-for-service-public-provider-enrollment/data
+
 Data Set C+: https://data.cms.gov/sites/default/files/2025-10/PPEF_Practice_Location_Extract_2025.10.01.csv 
 
 Here data set C+ includes some additional information about data set C. It will be joined with data set C at the pre-processing step. 
