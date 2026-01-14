@@ -20,7 +20,7 @@ Rest of this project is done on Python. We first uploaded the 6 training and tes
 
 **Exact Blocking:** This method uses brute force. It only considers the pairs where some columns are exactly the same in two data sets. We used three exact blockings in this project. We built them on top of each other. First exact blocking only considered the pairs with same ZIP code (first 5 characters of it). The second one was ZIP code and the initial of the last name. The third was ZIP code and both initials. We managed to reduce the number of pairs from 490 billion to 255k. However, meanwhile we lost almost $29\%$ precision. Here we calculated precision by the following formula:
 
-$$\text{Precision}=\frac{|A\cap B|}{A},$$
+$$\text{Precision}=\frac{|A\cap B|}{|A|},$$
 
 where $A$ is the set of pairs from data sets A and B with matching NPI's and $B$ is the set of pairs coming from the exact blocking. 
 
