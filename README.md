@@ -2,13 +2,13 @@
 
 Here I want to explain what we have done. First of all, the main goal of this project is to find the linkage between three data sets using full pipeline of data science. Let me first give the links where one can obtain the data sets.
 
-_Data Set A:_ https://catalog.data.gov/dataset/medicare-physician-other-practitioners-by-provider-and-service-b156e
+**Data Set A:** https://catalog.data.gov/dataset/medicare-physician-other-practitioners-by-provider-and-service-b156e
 
-*Data Set B:* https://openpaymentsdata.cms.gov/datasets/download
+**Data Set B:** https://openpaymentsdata.cms.gov/datasets/download
 
-*Data Set C:* https://data.cms.gov/provider-characteristics/medicare-provider-supplier-enrollment/medicare-fee-for-service-public-provider-enrollment/data
+**Data Set C:** https://data.cms.gov/provider-characteristics/medicare-provider-supplier-enrollment/medicare-fee-for-service-public-provider-enrollment/data
 
-*Data Set C+:* https://data.cms.gov/sites/default/files/2025-10/PPEF_Practice_Location_Extract_2025.10.01.csv 
+**Data Set C+:** https://data.cms.gov/sites/default/files/2025-10/PPEF_Practice_Location_Extract_2025.10.01.csv 
 
 Here data set C+ includes some additional information about data set C. It will be joined with data set C at the pre-processing step. 
 
@@ -17,5 +17,15 @@ Pre-processing part of this project was done in R. We first started pre-processi
 
 ## Blocking
 Rest of this project is done on Python. We first uploaded the 6 training and test data sets we obtained at R script. Then we started by applying blocking methods. The idea behind the blocking methods are very smart. There are 700k rows on each training data sets. Keep in mind that we will train the model using pairs coming from each of these different data sets. That means to compare data set A and B we would have to consider $700000^2$, so there are 490 billion pairs. We cannot consider all of them that's why we have to put some constraints on the pairs. We considered only two blocking methods in this project. One was exact blocking and the other was sorted neigborhood blocking. 
+
+**Exact Blocking:** This method uses brute force. It only considers the pairs where some columns are exactly the same in two data sets. We used three exact blockings in this project. We built them on top of each other. First exact blocking only considered the pairs with same ZIP code (first 5 characters of it). The second one was ZIP code and the initial of the last name. The third was ZIP code and both initials. We managed to reduce the number of pairs from 490 billion to 255k. However, meanwhile we lost almost $29\%$ precision. Here we calculated precision by the following formula:
+
+$$\text{Precision}=\frac{|A\cap B|}{A},$$
+
+where $A$ is the set of pairs from data sets A and B with matching NPI's and $B$ is the set of pairs coming from the exact blocking. 
+
+**Sorted Neighborhood Blocking:** Sorted neighborhood blocking first attributes a key for each row/provider. This key was made by last name + first name + State. Then these keys are put in a lexicogriphical (alphabetical) order. Then you would slide a window of 5 rows (you can change this) and you would count the pairs which are from the different data sets. This method resulted in 1.4 million pairs and the precision was over $93\%$. That's why we decided to use this blocking method instead of the exact blocking. 
+
+
 
 
