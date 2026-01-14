@@ -1,0 +1,476 @@
+---
+title: "PreProcessing"
+author: "Ovunc Ozgun Eker"
+date: "2026-01-13"
+output: html_document
+---
+
+## Samplings
+
+Since our data sets are way too big to work with, we will take a random sample of 1 million rows from each data set. 
+
+### Sampling from DataSet A
+
+```{r, cache=TRUE}
+library(data.table)
+
+total_rows <- length(count.fields("dataA.csv")) - 1
+
+set.seed(123)
+sample_idx <- sort(sample.int(total_rows,1000000))
+
+con <- file("dataA.csv", "r")
+header <- readLines(con, n = 1)
+
+keep <- integer(0)
+current <- 1
+result <- list()
+
+while (length(keep) < 1000000) {
+  lines <- readLines(con, n = 10000)
+  if (!length(lines)) break
+  
+  idx <- which(current:(current + length(lines) - 1) %in% sample_idx)
+  if (length(idx)) {
+    result <- c(result, lines[idx])
+    keep <- c(keep, sample_idx[sample_idx %in%
+                                 current:(current + length(lines) - 1)])
+  }
+  current <- current + length(lines)
+}
+
+close(con)
+
+dataA <- fread(text = c(header, unlist(result)))
+dataA$row_index <- sample_idx
+```
+  
+### Sampling from DataSet B
+
+```{r,cache=TRUE}
+total_rows <- length(count.fields("dataB.csv")) - 1
+
+set.seed(123)
+sample_idx <- sort(sample.int(total_rows, 1000000))
+
+con <- file("dataB.csv", "r")
+header <- readLines(con, n = 1)
+
+keep <- integer(0)
+current <- 1
+result <- list()
+
+while (length(keep) < 1000000) {
+  lines <- readLines(con, n = 10000)
+  if (!length(lines)) break
+  
+  idx <- which(current:(current + length(lines) - 1) %in% sample_idx)
+  if (length(idx)) {
+    result <- c(result, lines[idx])
+    keep <- c(keep, sample_idx[sample_idx %in%
+                                 current:(current + length(lines) - 1)])
+  }
+  current <- current + length(lines)
+}
+
+close(con)
+
+dataB <- fread(text = c(header, unlist(result)))
+dataB$row_index <- sample_idx
+
+```
+
+### Combining dataC and dataC+
+Before we sample from data set C, we will have to add more information to this data set. Data set dataC+ contains some address information for the providers of data set dataC, that's why we will join these two data sets before sampling.
+
+```{r,cache=TRUE,message=FALSE,warning=FALSE}
+library(dplyr)
+
+dataC <- read.csv("dataC.csv")
+dataCplus <- read.csv("dataC+.csv")
+
+dataC <- left_join(dataC, dataCplus, by="ENRLMT_ID")
+```
+
+## Sampling from table dataC
+
+```{r,cache=TRUE}
+set.seed(123)
+total_rows <- nrow(dataC)
+sample_idx <- sort(sample.int(total_rows, 1000000))
+
+dataC <- dataC[sample_idx,]
+dataC$row_index <- sample_idx
+```
+
+## Dropping unnecessary columns
+Here we will drop some unnecessary columns which will not be used later in this linkage system. Most of these columns are the ones that appears only one of the data sets. 
+
+### DataSet A
+
+```{r,cache=TRUE}
+dataA <- dataA[, -c("Rndrng_Prvdr_RUCA",
+                    "Rndrng_Prvdr_RUCA_Desc",
+                    "Rndrng_Prvdr_Mdcr_Prtcptg_Ind",
+                    "HCPCS_Cd",
+                    "HCPCS_Desc",
+                    "HCPCS_Drug_Ind",
+                    "Place_Of_Srvc",
+                    "Tot_Benes",
+                    "Tot_Srvcs",
+                    "Tot_Bene_Day_Srvcs",
+                    "Avg_Sbmtd_Chrg",
+                    "Avg_Mdcr_Alowd_Amt",
+                    "Avg_Mdcr_Pymt_Amt",
+                    "Avg_Mdcr_Stdzd_Amt",
+                    "Rndrng_Prvdr_Ent_Cd",
+                    "Rndrng_Prvdr_State_FIPS")]
+```
+
+
+### DataSet B 
+
+```{r,cache=TRUE}
+
+dataB <- dataB[,-c("Form_of_Payment_or_Transfer_of_Value",
+                   "Nature_of_Payment_or_Transfer_of_Value",
+                   "City_of_Travel",
+                   "State_of_Travel",
+                   "State_of_Travel",
+                   "Physician_Ownership_Indicator",
+                   "Third_Party_Payment_Recipient_Indicator",
+                   "Name_of_Third_Party_Entity_Receiving_Payment_or_Transfer_of_Value",
+                   "Charity_Indicator",
+                   "Third_Party_Equals_Covered_Recipient_Indicator",
+                   "Contextual_Information",
+                   "Delay_in_Publication_Indicator",
+                   "Dispute_Status_for_Publication",
+                   "Related_Product_Indicator",
+                   "Covered_or_Noncovered_Indicator_1",
+                   "Indicate_Drug_or_Biological_or_Device_or_Medical_Supply_1",
+                   "Product_Category_or_Therapeutic_Area_1",
+                   "Name_of_Drug_or_Biological_or_Device_or_Medical_Supply_1",
+                   "Associated_Drug_or_Biological_NDC_1",
+                   "Associated_Device_or_Medical_Supply_PDI_1",
+                   "Covered_or_Noncovered_Indicator_2",
+                   "Indicate_Drug_or_Biological_or_Device_or_Medical_Supply_2",
+                   "Product_Category_or_Therapeutic_Area_2",
+                   "Name_of_Drug_or_Biological_or_Device_or_Medical_Supply_2",
+                   "Associated_Drug_or_Biological_NDC_2",
+                   "Associated_Device_or_Medical_Supply_PDI_2",
+                   "Covered_or_Noncovered_Indicator_3",
+                   "Indicate_Drug_or_Biological_or_Device_or_Medical_Supply_3",
+                   "Product_Category_or_Therapeutic_Area_3",
+                   "Name_of_Drug_or_Biological_or_Device_or_Medical_Supply_3",
+                   "Associated_Drug_or_Biological_NDC_3",
+                   "Associated_Device_or_Medical_Supply_PDI_3",
+                   "Covered_or_Noncovered_Indicator_4",
+                   "Indicate_Drug_or_Biological_or_Device_or_Medical_Supply_4",
+                   "Product_Category_or_Therapeutic_Area_4",
+                   "Name_of_Drug_or_Biological_or_Device_or_Medical_Supply_4",
+                   "Associated_Drug_or_Biological_NDC_4",
+                   "Associated_Device_or_Medical_Supply_PDI_4",
+                   "Covered_or_Noncovered_Indicator_5",
+                   "Indicate_Drug_or_Biological_or_Device_or_Medical_Supply_5",
+                   "Product_Category_or_Therapeutic_Area_5",
+                   "Name_of_Drug_or_Biological_or_Device_or_Medical_Supply_5",
+                   "Associated_Drug_or_Biological_NDC_5",
+                   "Associated_Device_or_Medical_Supply_PDI_5",
+                   "Change_Type",
+                   "Teaching_Hospital_CCN",
+                   "Teaching_Hospital_ID",
+                   "Teaching_Hospital_Name",
+                   "Covered_Recipient_License_State_code1",
+                   "Covered_Recipient_License_State_code2",
+                   "Covered_Recipient_License_State_code3",
+                   "Covered_Recipient_License_State_code4",
+                   "Covered_Recipient_License_State_code5",
+                   "Applicable_Manufacturer_or_Applicable_GPO_Making_Payment_Name",
+                   "Applicable_Manufacturer_or_Applicable_GPO_Making_Payment_State",
+                   "Applicable_Manufacturer_or_Applicable_GPO_Making_Payment_Country",
+                   "Number_of_Payments_Included_in_Total_Amount",
+                   "Country_of_Travel")]
+
+```
+
+### DataSet C
+
+```{r,cache=TRUE}
+dataC <- dataC[, !names(dataC) %in% "STATE_CD.y"]
+```
+
+## Combining and then dropping some columns
+We realize that some information in data sets are split into two columns, we will merge those columns into one and then drop the other column. We will combine those strings using commas. 
+
+```{r,cache=TRUE}
+dataB$Street.Address <- apply(
+  dataB[, c("Recipient_Primary_Business_Street_Address_Line1",
+         "Recipient_Primary_Business_Street_Address_Line2")],
+  1,
+  function(x) paste(x[x != "" & !is.na(x)], collapse = ", ")
+)
+
+dataB$Primary.Type <- apply(
+  dataB[, c("Covered_Recipient_Primary_Type_1",
+            "Covered_Recipient_Primary_Type_2",
+            "Covered_Recipient_Primary_Type_3",
+            "Covered_Recipient_Primary_Type_4",
+            "Covered_Recipient_Primary_Type_5",
+            "Covered_Recipient_Primary_Type_6")],
+  1,
+  function(x) paste(x[x != "" & !is.na(x)], collapse = ", ")
+)
+
+dataB$Specialty <- apply(
+  dataB[, c("Covered_Recipient_Specialty_1",
+            "Covered_Recipient_Specialty_2",
+            "Covered_Recipient_Specialty_3",
+            "Covered_Recipient_Specialty_4",
+            "Covered_Recipient_Specialty_5",
+            "Covered_Recipient_Specialty_6")],
+  1,
+  function(x) paste(x[x != "" & !is.na(x)], collapse = ", ")
+)
+
+dataB <- dataB[,-c("Recipient_Primary_Business_Street_Address_Line1",
+                   "Recipient_Primary_Business_Street_Address_Line2",
+                   "Covered_Recipient_Primary_Type_1",
+                   "Covered_Recipient_Primary_Type_2",
+                   "Covered_Recipient_Primary_Type_3",
+                   "Covered_Recipient_Primary_Type_4",
+                   "Covered_Recipient_Primary_Type_5",
+                   "Covered_Recipient_Primary_Type_6",
+                   "Covered_Recipient_Specialty_1",
+                   "Covered_Recipient_Specialty_2",
+                   "Covered_Recipient_Specialty_3",
+                   "Covered_Recipient_Specialty_4",
+                   "Covered_Recipient_Specialty_5",
+                   "Covered_Recipient_Specialty_6")]
+
+dataA$Street.Address <- apply(
+  dataA[, c("Rndrng_Prvdr_St1",
+            "Rndrng_Prvdr_St2")],
+  1,
+  function(x) paste(x[x != "" & !is.na(x)], collapse = ", ")
+)
+
+dataA <- dataA[,-c("Rndrng_Prvdr_St1",
+                   "Rndrng_Prvdr_St2")]
+```
+
+## Clearer column names
+We further decided to name the columns similarly in each data sets so that later in the analysis we don't need look up which column is named what in different data sets. In the below code chunks, you could see the commented out parts, those were the old names that are replaced. 
+
+```{r,cache=TRUE,message=FALSE,warning=FALSE}
+names(dataA) <- c("NPI",
+                  "Last.Name",
+                  "First.Name",
+                  "Middle.Name",
+                  "Credentials",
+                  "City",
+                  "State",
+                  "ZIP",
+                  "Country",
+                  "Type",
+                  "Row.Index",
+                  "Street.Address")
+
+#[1] "Rndrng_NPI"                 "Rndrng_Prvdr_Last_Org_Name"
+#[3] "Rndrng_Prvdr_First_Name"    "Rndrng_Prvdr_MI"           
+#[5] "Rndrng_Prvdr_Crdntls"       "Rndrng_Prvdr_City"         
+#[7] "Rndrng_Prvdr_State_Abrvtn"  "Rndrng_Prvdr_Zip5"         
+#[9] "Rndrng_Prvdr_Cntry"         "Rndrng_Prvdr_Type"         
+#[11] "row_index"                  "Street.Address" 
+
+names(dataB) <- c("Type",
+                  "Profile.ID",
+                  "NPI",
+                  "First.Name",
+                  "Middle.Name",
+                  "Last.Name",
+                  "Name.Suffix",
+                  "City",
+                  "State",
+                  "ZIP",
+                  "Country",
+                  "Province",
+                  "Postal.Code",
+                  "Business.Name",
+                  "Payment.ID",
+                  "Payment",
+                  "Payment.Date",
+                  "Record.ID",
+                  "Program.Year",
+                  "Payment.Publication.Date",
+                  "Row.Index",
+                  "Street.Address",                                             
+                  "Primary.Type",                                               
+                  "Specialty" )
+
+
+#[1] "Covered_Recipient_Type"                                     
+#[2] "Covered_Recipient_Profile_ID"                               
+#[3] "Covered_Recipient_NPI"                                      
+#[4] "Covered_Recipient_First_Name"                               
+#[5] "Covered_Recipient_Middle_Name"                              
+#[6] "Covered_Recipient_Last_Name"                                
+#[7] "Covered_Recipient_Name_Suffix"                              
+#[8] "Recipient_City"                                             
+#[9] "Recipient_State"                                            
+#[10] "Recipient_Zip_Code"                                         
+#[11] "Recipient_Country"                                          
+#[12] "Recipient_Province"                                         
+#[13] "Recipient_Postal_Code"                                      
+#[14] "Submitting_Applicable_Manufacturer_or_Applicable_GPO_Name"  
+#[15] "Applicable_Manufacturer_or_Applicable_GPO_Making_Payment_ID"
+#[16] "Total_Amount_of_Payment_USDollars"                          
+#[17] "Date_of_Payment"                                            
+#[18] "Record_ID"                                                  
+#[19] "Program_Year"                                               
+#[20] "Payment_Publication_Date"                                   
+#[21] "row_index"                                                  
+#[22] "Street.Address"                                             
+#[23] "Primary.Type"                                               
+#[24] "Specialty"
+
+
+names(dataC) <- c("NPI",
+                  "Multiple.NPI",
+                  "PECOS.ID",
+                  "Enrollment.ID",
+                  "Type.Code",
+                  "Type",
+                  "State",
+                  "First.Name",
+                  "Middle.Name",
+                  "Last.Name",
+                  "Organization.Name",
+                  "City",
+                  "ZIP",
+                  "Row.Index")
+
+#[1] "NPI"                "MULTIPLE_NPI_FLAG"  "PECOS_ASCT_CNTL_ID"
+#[4] "ENRLMT_ID"          "PROVIDER_TYPE_CD"   "PROVIDER_TYPE_DESC"
+#[7] "STATE_CD.x"         "FIRST_NAME"         "MDL_NAME"          
+#[10] "LAST_NAME"          "ORG_NAME"           "CITY_NAME"         
+#[13] "ZIP_CD"             "row_index"  
+
+dataB$ZIP <- as.integer(dataB$ZIP)
+```
+
+## Exploratory Data Analysis
+Now we will perform some easy exploratory data analysis for our three data sets to gain more information about them. Firstly, we want to know the percentages NA's of each column. 
+
+```{r,cache=TRUE,warning=FALSE}
+library(ggplot2)
+
+na.percentage <- function(data){
+  for (name in names(data)){
+    print(paste(sum(is.na(data[[name]]))/nrow(data)*100, "% NA's in", name))
+  }
+}
+```
+
+```{r,cache=TRUE}
+na.percentage(dataA)
+na.percentage(dataB)
+na.percentage(dataC)
+```
+
+From the results we see that ZIP code is a common column in each of these three data sets. However, it is commonly empty as well. Therefore, it is clear that ZIP code shouldn't be included in blocking methods. Also, it will probably be less likely to be an important feature in the machine learning method.
+
+Now for each data set, we will check if there are any outliers or anamolies in the number of characters in first and last names. 
+
+```{r,cache=TRUE,message=FALSE,warning=FALSE}
+hist(nchar(dataA$First.Name),xlab ="Number of Characters",main = "Histogram of First Name Lengths in Data Set A",ylab="Count")
+
+hist(nchar(dataA$Last.Name),xlab ="Number of Characters",main = "Histogram of Last Name Lengths in Data Set A",ylab="Count")
+ggplot(dataA, aes(x = reorder(State, State, function(x) -length(x)))) +
+  geom_bar() +
+  labs(
+    title = "State Frequency in Data Set A",
+    x = "State",
+    y = "Count"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  )
+
+
+hist(nchar(dataB$First.Name),xlab ="Number of Characters",main = "Histogram of First Name Lengths in Data Set B",ylab="Count")
+
+hist(nchar(dataB$Last.Name),xlab ="Number of Characters",main = "Histogram of Last Name Lengths in Data Set B",ylab="Count")
+ggplot(dataB, aes(x = reorder(State, State, function(x) -length(x)))) +
+  geom_bar() +
+  labs(
+    title = "State Frequency in Data Set B",
+    x = "State",
+    y = "Count"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  )
+
+
+hist(nchar(dataC$First.Name),xlab ="Number of Characters",main = "Histogram of First Name Lengths in Data Set C",ylab="Count")
+
+hist(nchar(dataC$Last.Name),xlab ="Number of Characters",main = "Histogram of Last Name Lengths in Data Set C",ylab="Count")
+ggplot(dataC, aes(x = reorder(State, State, function(x) -length(x)))) +
+  geom_bar() +
+  labs(
+    title = "State Frequency in Data Set C",
+    x = "State",
+    y = "Count"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  )
+
+```
+
+We see that the number of characters spread quite normally in each data set, implying there are not so many outliers. Also, we can see that states are distributed very similarly amongst different data sets. 
+
+Moreover, we would like to check the number of appearance of each provider in a data set. 
+
+```{r,cache=TRUE}
+freqA <- as.data.frame(table(dataA$NPI)) 
+summary(freqA$Freq)  
+
+freqB <- as.data.frame(table(dataB$NPI))
+summary(freqB$Freq)
+
+freqC <- as.data.frame(table(dataC$NPI))
+summary(freqC$Freq) 
+```
+
+Looking at the means and medians at the frequency tables, we can infer that vast majority of providers appear only once or twice in each data set. 
+
+Now we will save the pre-processed data sets as training and testing data for later use in machine learning. 
+
+```{r,cache=TRUE, eval=FALSE}
+
+set.seed(123)
+
+dataA <- dataA[sample(nrow(dataA)),]
+dataB <- dataB[sample(nrow(dataB)),]
+dataC <- dataC[sample(nrow(dataC)),]
+
+dataAtrain <- dataA[1:700000,]
+dataBtrain <- dataB[1:700000,]
+dataCtrain <- dataC[1:700000,]
+
+dataAtest <- dataA[700001:1000000,]
+dataBtest <- dataB[700001:1000000,]
+dataCtest <- dataC[700001:1000000,]
+
+
+write.csv(dataAtest, "dataAtest.csv", row.names = FALSE)
+write.csv(dataBtest, "dataBtest.csv", row.names = FALSE)
+write.csv(dataCtest, "dataCtest.csv", row.names = FALSE)
+
+write.csv(dataAtrain, "dataAtrain.csv", row.names = FALSE)
+write.csv(dataBtrain, "dataBtrain.csv", row.names = FALSE)
+write.csv(dataCtrain, "dataCtrain.csv", row.names = FALSE)
+```
+
+
