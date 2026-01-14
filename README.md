@@ -27,5 +27,19 @@ where $A$ is the set of pairs from data sets A and B with matching NPI's and $B$
 **Sorted Neighborhood Blocking:** Sorted neighborhood blocking first attributes a key for each row/provider. This key was made by last name + first name + State. Then these keys are put in a lexicogriphical (alphabetical) order. Then you would slide a window of 5 rows (you can change this) and you would count the pairs which are from the different data sets. This method resulted in 1.4 million pairs and the precision was over $93\%$. That's why we decided to use this blocking method instead of the exact blocking. 
 
 
+## Similarity Table
+
+Next for these data pairs, we created similarity results. However, for each column we used some different function. For instance, for first/last names, city, and ZIP code we used Jaro-Winkler similarity function. For middle name, state, country, and credential we used Levensthein similerity function. For street address and type columns we created some customary functions. 
+
+**Jaro-Winkler Similarity Function:** Jaro-Winkler similarity is used best for words whose initials characters are the same. Firstly, the math behind Jaro similarity is given by 
+
+$$sim_j = \begin{cases}0 & m=0\\ \frac{1}{3}\left(\frac{m}{|s_1|}+\frac{m}{|s_2|}+\frac{m-t}{m}\right) & otherwise\end{cases},$$
+
+where $|s_i|$'s are the lenghts of the strings, $m$ is the number of matching characters, and $t$ is the number of transpositions. Then the Jaro-Winkler similarity is given by 
+
+$$sim_w = sim_j + lp(1-sim_j),$$
+
+where  prefix scale $p$ which gives more favorable ratings to strings that match from the beginning for a set prefix length $l$. 
+
 
 
