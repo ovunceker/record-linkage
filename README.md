@@ -52,5 +52,42 @@ $$sim_w = sim_j + lp(1-sim_j),$$
 
 where  prefix scale $p$ which gives more favorable ratings to strings that match from the beginning for a set prefix length $l$. 
 
+**Levenshtein Similarity Function:** Levenshtein similarity is computed using Levenshtein distance of one string to another. Levenshtein distance is obtained by counting the least number of changes you have to make to go from one string to another. For instance, Levenshtein distance from "kitten" to "sitting" is three because 
+
+1) We first have to change "k" with "s", so "kitten" $\to$ "sitten"
+2) Then we have to change "e" to "i", so "sitten" $\to$ "sittin"
+3) And finally we have to instert "g", so "sittin" $\to$ "sitting"
+
+Then the Levensthein similarity between two strings is given by 
+
+$$sim_L(s_1,s_2)=1-\frac{d_L(s_1,s_2)}{\max(|s_1|,|s_2|)}.$$
+
+**Cosine Similarity Function and TD-IDF Weighting:** Now before we are talking about the customary function we wrote for Street Address column, we should talk about Cosine similarity function with TD-IDF weighting. The idea behind Cosine similarity function is very intuitive mathematically. First, you need to create a library for the strings you want to compare. Then you have to vectorize those strings and then we evaluate the cosine of the angle between those two vectors. If cosine is close to 1, this means that the angle between those two vector are close to zero, i.e. the vectors are very similar to each other. Let's give an example of cosine similarity between two strings. Suppose you want to compare "Washington Street Lincoln Avenue" and "Lincoln Ave Washington St". Now we have to create a library out of these strings and we have to vectorize them. In this example we have, 
+
+| Washington | Street | Lincoln | Avenue | Ave | St |
+|------|------|------|------|------|------|
+| 1   | 1   | 1   | 1   | 0   | 0   |
+| 1   | 0   | 1   | 0   | 1   | 1   |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
