@@ -29,11 +29,22 @@ where $A$ is the set of pairs from data sets A and B with matching NPI's and $B$
 
 ## Similarity Table
 
-Next for these data pairs, we created similarity results. However, for each column we used some different function. For instance, for first/last names, city, and ZIP code we used Jaro-Winkler similarity function. For middle name, state, country, and credential we used Levensthein similerity function. For street address and type columns we created some customary functions. 
+Next for these data pairs, we created similarity results. However, for each column we used some different function. For instance, for first/last names, city, and ZIP code we used Jaro-Winkler similarity function. For middle name, state, country, and credential we used Levensthein similarity function. For street address and type columns we created some customary functions. 
 
 **Jaro-Winkler Similarity Function:** Jaro-Winkler similarity is used best for words whose initials characters are the same. Firstly, the math behind Jaro similarity is given by 
 
-$$sim_j = \begin{cases}0 & m=0\\ \frac{1}{3}\left(\frac{m}{|s_1|}+\frac{m}{|s_2|}+\frac{m-t}{m}\right) & otherwise\end{cases},$$
+```math
+sim_j =
+\begin{cases}
+0 & m = 0 \\
+\frac{1}{3}\left(
+\frac{m}{|s_1|} +
+\frac{m}{|s_2|} +
+\frac{m - t}{m}
+\right) & \text{otherwise}
+\end{cases}
+```
+
 
 where $|s_i|$'s are the lenghts of the strings, $m$ is the number of matching characters, and $t$ is the number of transpositions. Then the Jaro-Winkler similarity is given by 
 
