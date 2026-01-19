@@ -69,6 +69,9 @@ $$sim_L(s_1,s_2)=1-\frac{d_L(s_1,s_2)}{\max(|s_1|,|s_2|)}.$$
 |String 1: | 1   | 1   | 1   | 1   | 0   | 0   |
 |String 2: | 1   | 0   | 1   | 0   | 1   | 1   |
 
+Now that we have the vectors, we can evaluate the cosine by using the formula:
+
+$$\cos\theta =\frac{\mathbb{u}\cdot\mathbb{v}}{||\mathbb{u}|| ||\mathbb{v}||}$$
 
 
 
