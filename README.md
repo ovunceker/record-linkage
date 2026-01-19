@@ -64,10 +64,10 @@ $$sim_L(s_1,s_2)=1-\frac{d_L(s_1,s_2)}{\max(|s_1|,|s_2|)}.$$
 
 **Cosine Similarity Function and TD-IDF Weighting:** Now before we are talking about the customary function we wrote for Street Address column, we should talk about Cosine similarity function with TD-IDF weighting. The idea behind Cosine similarity function is very intuitive mathematically. First, you need to create a library for the strings you want to compare. Then you have to vectorize those strings and then we evaluate the cosine of the angle between those two vectors. If cosine is close to 1, this means that the angle between those two vector are close to zero, i.e. the vectors are very similar to each other. Let's give an example of cosine similarity between two strings. Suppose you want to compare "Washington Street Lincoln Avenue" and "Lincoln Ave Washington St". Now we have to create a library out of these strings and we have to vectorize them. In this example we have, 
 
-| Washington | Street | Lincoln | Avenue | Ave | St |
-|:----:|:----:|:----:|:----:|:----:|:----:|
-| 1   | 1   | 1   | 1   | 0   | 0   |
-| 1   | 0   | 1   | 0   | 1   | 1   |
+| Library: | Washington | Street | Lincoln | Avenue | Ave | St |
+|:-----------------|:----:|:----:|:----:|:----:|:----:|:----:|
+|String 1: | 1   | 1   | 1   | 1   | 0   | 0   |
+|String 2: | 1   | 0   | 1   | 0   | 1   | 1   |
 
 
 
