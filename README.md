@@ -71,7 +71,34 @@ $$sim_L(s_1,s_2)=1-\frac{d_L(s_1,s_2)}{\max(|s_1|,|s_2|)}.$$
 
 Now that we have the vectors, we can evaluate the cosine by using the formula:
 
-$$\cos\theta =\frac{\mathbb{u}\cdot\mathbb{v}}{||\mathbb{u}|| ||\mathbb{v}||}$$
+$$\cos\theta =\frac{\mathbb{u}\cdot\mathbb{v}}{||\mathbb{u}||\cdot||\mathbb{v}||}.$$
+
+Hence, in our example, the result is $0.5$. Now TD-IDF weighing appears exactly at the step of the vectorization. This method emphasizes more on the words that are rare, so if two string contains the same rare word, they are more likely to be the same. Even though in this example every word appears only once, we could stress more about the street and avenue names. We might say that our vectors are now: 
+
+| Library: | Washington | Street | Lincoln | Avenue | Ave | St |
+|:-----------------|:----:|:----:|:----:|:----:|:----:|:----:|
+|String 1: | 1.5   | 0.5   | 1.5   | 0.5   | 0   | 0   |
+|String 2: | 1.5   | 0   | 1.5   | 0   | 0.5   | 0.5   |
+
+Now the cosine between these two vectors are $0.9$, whence they are almost the same. However, we still couldn't obtain $1$ as the words "St" and "Street" couldn't be identified as same in our example. Now let's talk about the similarity function we wrote for the street address column. 
+
+**Custom Function 1 (for address column):** Before we getting into the similarity function, we did an intermediate cleaning step that involves deleting all punctiations and writing every character as upper case. Now this similarity function uses every similarity method we mentioned above so far. Firstly, we realized that top 11 most common words from both data set A and B are the same and they were all the address indicator words, such as "Street", "North", "Apartment", etc., so we disregarded all of those words from the later consideration. Now, our function takes the street address columns from data set A and B, and creates a whole library from them. It also checks the Jaro-Winkler and Levensthein similarities between the rare words, so that we catch the typos or different spelling from the most important words. Then it creates a library where it identifies the similar rare words as the same. Finally, it calculates the cosine similarity of the two strings again using TD-IDF vectorization. 
+
+**Custom Function 2 (for type column):** Now this function is rather easy than the previous one. Type columns basically includes the speciality of the providers, so it includes only very few different words compared to the streed address column. The words it includes are for instance "internal medicine", "allopathic & osteopathic physicians", etc. Then what we did was to check if the two strings include the "same" words becuase if so, then the speciality of the two providers must be the same. By "same" words we meant similar words, as we also checked the Jaro-Winkler and Levensthein similarity of the words here as well to check different spelling of the same words. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
